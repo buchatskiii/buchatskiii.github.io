@@ -10,11 +10,12 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh.connect(host, port, username, password)
 
 commands = [
-    "cat /etc/nginx/sites-enabled/default 2>/dev/null || cat /etc/nginx/conf.d/default.conf 2>/dev/null || cat /etc/nginx/nginx.conf",
-    "ls -la /var/www/english-tutor/",
-    "curl -s -o /dev/null -w '%{http_code}' http://localhost/",
-    "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/",
-    "ss -tlnp | grep -E '80|443|8000'",
+    "ls -la /var/www/englishpro/",
+    "cat /var/www/englishpro/index.html | head -5",
+    "curl -s -D- http://localhost/ | head -20",
+    "curl -s -D- http://localhost/index.html | head -20",
+    "curl -s -D- http://139.100.234.22/ | head -20",
+    "cat /var/log/nginx/error.log | tail -20",
 ]
 
 for cmd in commands:
@@ -22,7 +23,7 @@ for cmd in commands:
     stdin, stdout, stderr = ssh.exec_command(cmd)
     out = stdout.read().decode()
     err = stderr.read().decode()
-    if out: print(out)
-    if err: print("ERR:", err)
+    if out: print(out[:500])
+    if err: print("ERR:", err[:200])
 
 ssh.close()

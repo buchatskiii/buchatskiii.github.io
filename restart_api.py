@@ -10,11 +10,10 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh.connect(host, port, username, password)
 
 commands = [
-    "cat /etc/nginx/sites-enabled/default 2>/dev/null || cat /etc/nginx/conf.d/default.conf 2>/dev/null || cat /etc/nginx/nginx.conf",
-    "ls -la /var/www/english-tutor/",
+    "systemctl restart english-tutor 2>&1 || echo 'no service'",
+    "systemctl status english-tutor 2>&1 | head -10",
+    "curl -s http://localhost/api/health",
     "curl -s -o /dev/null -w '%{http_code}' http://localhost/",
-    "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/",
-    "ss -tlnp | grep -E '80|443|8000'",
 ]
 
 for cmd in commands:
@@ -22,7 +21,7 @@ for cmd in commands:
     stdin, stdout, stderr = ssh.exec_command(cmd)
     out = stdout.read().decode()
     err = stderr.read().decode()
-    if out: print(out)
-    if err: print("ERR:", err)
+    if out: print(out[:500])
+    if err: print("ERR:", err[:200])
 
 ssh.close()
