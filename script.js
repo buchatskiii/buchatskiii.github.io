@@ -277,3 +277,50 @@ phoneInput.addEventListener('input', function(e) {
         this.value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
     }
 });
+
+// ===== VIDEO AUTOPLAY ON SCROLL =====
+const aboutVideo = document.getElementById('aboutVideo');
+const videoOverlay = document.getElementById('videoPlayOverlay');
+let videoPlayed = false;
+
+if (aboutVideo) {
+    // Intersection Observer для автоплея при скролле
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !videoPlayed) {
+                aboutVideo.play().then(() => {
+                    videoOverlay.classList.add('hidden');
+                    videoPlayed = true;
+                }).catch(() => {
+                    // Браузер заблокировал автовоспроизведение - ждём клика
+                });
+            } else if (!entry.isIntersecting && aboutVideo.paused === false) {
+                aboutVideo.pause();
+            }
+        });
+    }, { threshold: 0.5 });
+
+    videoObserver.observe(aboutVideo);
+
+    // Клик по overlay для запуска видео
+    videoOverlay.addEventListener('click', () => {
+        aboutVideo.play();
+        videoOverlay.classList.add('hidden');
+        videoPlayed = true;
+    });
+
+    // Клик по самому видео - пауза/плей
+    aboutVideo.addEventListener('click', () => {
+        if (aboutVideo.paused) {
+            aboutVideo.play();
+        } else {
+            aboutVideo.pause();
+        }
+    });
+
+    // Когда видео закончилось - показываем overlay снова
+    aboutVideo.addEventListener('ended', () => {
+        videoOverlay.classList.remove('hidden');
+        videoPlayed = false;
+    });
+}
