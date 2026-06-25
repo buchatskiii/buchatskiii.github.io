@@ -98,7 +98,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 const contactForm = document.getElementById('contactForm');
 
 // URL бэкенда на VDS сервере
-const API_URL = 'http://139.100.234.22';
+const API_URL = '';
 
 contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
