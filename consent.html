@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Согласие на обработку персональных данных | EnglishPro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3">
+    <style>
+        .doc-page {
+            padding: 140px 0 60px;
+            background: #fff;
+            min-height: 100vh;
+        }
+        .doc-page .container {
+            max-width: 900px;
+        }
+        .doc-page h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        .doc-page .last-updated {
+            color: var(--dark-light);
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+        }
+        .doc-page h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            color: var(--dark);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        .doc-page h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        .doc-page p {
+            color: var(--dark-light);
+            line-height: 1.7;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .doc-page ul, .doc-page ol {
+            color: var(--dark-light);
+            line-height: 1.7;
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+        .doc-page li {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+        .doc-page .highlight-box {
+            background: var(--bg);
+            border-left: 4px solid var(--primary);
+            padding: 20px 24px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .doc-page .highlight-box p {
+            margin-bottom: 0;
+        }
+        .doc-page .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 24px;
+            transition: var(--transition);
+        }
+        .doc-page .back-link:hover {
+            gap: 12px;
+        }
+        .doc-page .requisites {
+            background: var(--bg);
+            border-radius: var(--radius-md);
+            padding: 28px 32px;
+            margin: 20px 0;
+        }
+        .doc-page .requisites p {
+            margin-bottom: 6px;
+        }
+        .doc-page .requisites strong {
+            color: var(--dark);
+        }
+        .doc-page .consent-form {
+            background: var(--bg);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            margin: 24px 0;
+            border: 1px solid var(--gray-light);
+        }
+        .doc-page .consent-form .field {
+            margin-bottom: 16px;
+        }
+        .doc-page .consent-form .field label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        .doc-page .consent-form .field .value {
+            display: block;
+            padding: 10px 14px;
+            background: #fff;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--dark-light);
+            min-height: 20px;
+        }
+        .doc-page .consent-form .field .value.filled {
+            color: var(--dark);
+        }
+        .doc-page .signature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 2px solid var(--gray-light);
+        }
+        .doc-page .signature-line {
+            margin-top: 60px;
+            border-bottom: 1px solid var(--dark);
+            width: 250px;
+        }
+        .doc-page .signature-label {
+            font-size: 0.85rem;
+            color: var(--dark-light);
+            margin-top: 4px;
+        }
+        .doc-page .checkbox-sample {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 16px 0;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid var(--gray-light);
+        }
+        .doc-page .checkbox-sample input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+        @media (max-width: 768px) {
+            .doc-page {
+                padding: 100px 0 40px;
+            }
+            .doc-page h1 {
+                font-size: 1.8rem;
+            }
+            .doc-page .requisites {
+                padding: 20px;
+            }
+            .doc-page .consent-form {
+                padding: 20px;
+            }
+            .doc-page .signature-block {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header style="position: fixed; top: 0; left: 0; width: 100%; background: var(--dark); z-index: 100; padding: 16px 0;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" class="logo" style="text-decoration: none;">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">English<span class="logo-accent">Pro</span></span>
+            </a>
+            <a href="index.html" style="color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;">← На главную</a>
+        </div>
+    </header>
+
+    <section class="doc-page">
+        <div class="container">
+            <a href="index.html" class="back-link">← Вернуться на главную</a>
+            <h1>Согласие на обработку персональных данных</h1>
+            <p class="last-updated">Последнее обновление: 25 июня 2026 года</p>
+
+            <div class="highlight-box">
+                <p>Настоящим я, Пользователь сайта <strong>englishpro-tutor.ru</strong>, свободно, своей волей и в своих интересах даю согласие Индивидуальному предпринимателю Юсупову Бексултану Шукуралиевичу (далее — «Оператор») на обработку моих персональных данных на условиях, изложенных ниже.</p>
+            </div>
+
+            <h2>1. Сведения об Операторе</h2>
+            <div class="requisites">
+                <p><strong>Индивидуальный предприниматель:</strong> Юсупов Бексултан Шукуралиевич</p>
+                <p><strong>ИНН:</strong> 773139579800</p>
+                <p><strong>ОГРНИП:</strong> 324774600567890</p>
+                <p><strong>Адрес:</strong> 143900, г. Балашиха, ул. Троицкая, д. 5</p>
+                <p><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+                <p><strong>Email:</strong> bek.english@example.com</p>
+            </div>
+
+            <h2>2. Состав персональных данных</h2>
+            <p>Я даю согласие на обработку следующих персональных данных:</p>
+            <ul>
+                <li>Фамилия и имя;</li>
+                <li>Номер контактного телефона;</li>
+                <li>Адрес электронной почты (email);</li>
+                <li>Цель обращения (подготовка к экзамену, общий английский и т.д.);</li>
+                <li>Текущий уровень владения английским языком (при наличии);</li>
+                <li>Содержание сообщения или комментария (при наличии).</li>
+            </ul>
+
+            <h2>3. Цели обработки персональных данных</h2>
+            <p>Я даю согласие на обработку моих персональных данных в следующих целях:</p>
+            <ul>
+                <li>Связь со мной для уточнения деталей обращения, проведения диагностики уровня языка и составления индивидуального плана обучения;</li>
+                <li>Оказание консультационных и образовательных услуг по обучению английскому языку;</li>
+                <li>Направление информации о новых акциях, скидках и специальных предложениях (только при наличии отдельного согласия);</li>
+                <li>Улучшение качества услуг Оператора;</li>
+                <li>Исполнение требований законодательства Российской Федерации.</li>
+            </ul>
+
+            <h2>4. Способы обработки персональных данных</h2>
+            <p>Я даю согласие на совершение Оператором следующих действий с моими персональными данными:</p>
+            <ul>
+                <li>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение);</li>
+                <li>Извлечение, использование, передача (предоставление доступа);</li>
+                <li>Удаление, уничтожение персональных данных;</li>
+                <li>Обработка как с использованием средств автоматизации, так и без них.</li>
+            </ul>
+
+            <h2>5. Передача персональных данных третьим лицам</h2>
+            <p>Я даю согласие на передачу моих персональных данных третьим лицам только в следующих случаях:</p>
+            <ul>
+                <li>Для оказания услуг (операторам связи, платёжным системам);</li>
+                <li>По запросу уполномоченных государственных органов в случаях, предусмотренных законодательством РФ;</li>
+                <li>В иных случаях, прямо предусмотренных законодательством РФ.</li>
+            </ul>
+            <p>В остальных случаях Оператор обязуется не передавать мои персональные данные третьим лицам без моего письменного согласия.</p>
+
+            <h2>6. Срок действия согласия</h2>
+            <p>Настоящее согласие действует с момента его предоставления (проставления отметки в чекбоксе на Сайте) и до момента его отзыва в письменной форме.</p>
+            <p>Срок хранения персональных данных составляет 3 (три) года с момента последнего взаимодействия со мной, если иное не предусмотрено законодательством РФ.</p>
+
+            <h2>7. Отзыв согласия</h2>
+            <p>Я проинформирован(а) о том, что:</p>
+            <ul>
+                <li>Я имею право отозвать настоящее согласие в любой момент путём направления письменного уведомления на электронную почту Оператора: <strong>bek.english@example.com</strong> или почтовым отправлением по адресу: <strong>143900, г. Балашиха, ул. Троицкая, д. 5</strong>;</li>
+                <li>Отзыв согласия не влечёт прекращения обработки персональных данных, если такая обработка необходима для исполнения требований законодательства РФ;</li>
+                <li>Я имею право требовать уточнения, блокирования или уничтожения моих персональных данных в случае, если они являются неполными, устаревшими, недостоверными или обрабатываются с нарушением законодательства;</li>
+                <li>Я имею право обжаловать действия Оператора в уполномоченный орган по защите прав субъектов персональных данных.</li>
+            </ul>
+
+            <h2>8. Подтверждение ознакомления</h2>
+            <p>Я подтверждаю, что:</p>
+            <ul>
+                <li>Ознакомлен(а) с <a href="privacy.html">Политикой конфиденциальности</a> Оператора;</li>
+                <li>Ознакомлен(а) с <a href="offer.html">Договором-офертой</a> на оказание образовательных услуг;</li>
+                <li>Действую свободно, своей волей и в своих интересах;</li>
+                <li>Понимаю значение своих действий по проставлению отметки в чекбоксе на Сайте;</li>
+                <li>Согласие считается предоставленным с момента проставления отметки в чекбоксе «Я согласен(на) с политикой конфиденциальности» на Сайте Оператора.</li>
+            </ul>
+
+            <div class="checkbox-sample">
+                <input type="checkbox" checked disabled>
+                <span style="font-size: 0.9rem; color: var(--dark-light);">Я согласен(на) с <a href="privacy.html">политикой конфиденциальности</a> и даю согласие на обработку персональных данных</span>
+            </div>
+
+            <h2>9. Форма согласия для заполнения</h2>
+            <p>Ниже представлена форма согласия, которая может быть заполнена Заказчиком в письменном виде при необходимости:</p>
+
+            <div class="consent-form">
+                <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 20px;">СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ</p>
+                
+                <div class="field">
+                    <label>Фамилия, имя, отчество:</label>
+                    <div class="value">___________________________</div>
+                </div>
+                <div class="field">
+                    <label>Номер телефона:</label>
+                    <div class="value">___________________________</div>
+                </div>
+                <div class="field">
+                    <label>Адрес электронной почты:</label>
+                    <div class="value">___________________________</div>
+                </div>
+                <div class="field">
+                    <label>Дата:</label>
+                    <div class="value">___________________________</div>
+                </div>
+                <div class="field">
+                    <label>Подпись:</label>
+                    <div class="value">___________________________</div>
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div>
+                    <p><strong>Оператор:</strong></p>
+                    <p>ИП Юсупов Б.Ш.</p>
+                    <div class="signature-line"></div>
+                    <p class="signature-label">Подпись / Дата</p>
+                </div>
+                <div>
+                    <p><strong>Субъект персональных данных:</strong></p>
+                    <p>___________________________</p>
+                    <p class="signature-label">(ФИО полностью)</p>
+                    <div class="signature-line"></div>
+                    <p class="signature-label">Подпись / Дата</p>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <p><strong>ИП Юсупов Бексултан Шукуралиевич</strong><br>
+                ИНН 773139579800 | ОГРНИП 324774600567890<br>
+                г. Москва, 2026 г.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon">📚</span>
+                        <span class="logo-text">English<span class="logo-accent">Pro</span></span>
+                    </div>
+                    <p>Репетитор по английскому языку. Подготовка к ОГЭ/ЕГЭ на 90+ баллов.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Навигация</h4>
+                    <ul>
+                        <li><a href="index.html#about">Обо мне</a></li>
+                        <li><a href="index.html#results">Результаты</a></li>
+                        <li><a href="index.html#program">Программа</a></li>
+                        <li><a href="index.html#certificates">Сертификаты</a></li>
+                        <li><a href="index.html#pricing">Стоимость</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Контакты</h4>
+                    <ul>
+                        <li><a href="#">Telegram</a></li>
+                        <li><a href="#">WhatsApp</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">YouTube</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Документы</h4>
+                    <ul>
+                        <li><a href="privacy.html">Политика конфиденциальности</a></li>
+                        <li><a href="offer.html">Договор оферты</a></li>
+                        <li><a href="consent.html">Согласие на обработку данных</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2026 EnglishPro. ИП Юсупов Б.Ш. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
