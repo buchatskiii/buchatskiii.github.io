@@ -1,54 +1,30 @@
+#!/usr/bin/env python3
+"""Check current video state on server."""
 import paramiko
 
-host = "139.100.234.22"
-port = 22
-username = "root"
 password = "qmc67Ra9TYas"
+client = paramiko.SSHClient()
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+client.connect('139.100.234.22', 22, 'root', password, look_for_keys=False, allow_agent=False)
 
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect(host, port, username, password)
+# Find video files
+stdin, stdout, stderr = client.exec_command("find /var/www/englishpro -name '*.mp4' -o -name '*.webm' -o -name '*.mov' 2>/dev/null")
+print("=== Video files ===")
+print(stdout.read().decode())
 
-sftp = ssh.open_sftp()
+# Check about section
+stdin, stdout, stderr = client.exec_command("grep -n -i 'about' /var/www/englishpro/index.html | head -20")
+print("=== About section ===")
+print(stdout.read().decode())
 
-# Читаем HTML
-with sftp.open("/var/www/englishpro/index.html", "r") as f:
-    html = f.read().decode("utf-8")
+# Check for video/mp4 in HTML
+stdin, stdout, stderr = client.exec_command("grep -n -i 'video\\|mp4\\|webm' /var/www/englishpro/index.html")
+print("=== Video in HTML ===")
+print(stdout.read().decode())
 
-# Ищем строку с video
-import re
-matches = re.findall(r'<video[^>]*>', html)
-print("=== VIDEO TAGS IN HTML ===")
-for m in matches:
-    print(m)
+# Check about section full content
+stdin, stdout, stderr = client.exec_command("sed -n '/about/,/results/p' /var/www/englishpro/index.html | head -60")
+print("=== About section full ===")
+print(stdout.read().decode())
 
-# Ищем aboutVideo
-if 'aboutVideo' in html:
-    print("\n✅ aboutVideo найден в HTML")
-else:
-    print("\n❌ aboutVideo НЕ найден в HTML!")
-
-# Читаем JS
-with sftp.open("/var/www/englishpro/script.js", "r") as f:
-    js = f.read().decode("utf-8")
-
-print("\n=== VIDEO JS BLOCK ===")
-# Находим блок про video
-start = js.find('// ===== Video in About section')
-if start >= 0:
-    end = js.find('// Show button again when video ends', start)
-    if end < 0:
-        end = js.find('// =====', start + 10)
-    if end < 0:
-        end = start + 2000
-    print(js[start:end])
-else:
-    print("❌ Блок Video in About section НЕ найден!")
-    # Ищем любые упоминания aboutVideo
-    if 'aboutVideo' in js:
-        idx = js.find('aboutVideo')
-        print(f"  Но aboutVideo найден на позиции {idx}")
-        print(js[max(0,idx-200):idx+500])
-
-sftp.close()
-ssh.close()
+client.close()

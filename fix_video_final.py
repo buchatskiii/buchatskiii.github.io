@@ -1,118 +1,209 @@
+#!/usr/bin/env python3
+"""Fix video: make vertical, add controls, autoplay on scroll."""
 import paramiko
 import re
 
-host = "139.100.234.22"
-port = 22
-username = "root"
 password = "qmc67Ra9TYas"
+client = paramiko.SSHClient()
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+client.connect('139.100.234.22', 22, 'root', password, look_for_keys=False, allow_agent=False)
+sftp = client.open_sftp()
 
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect(host, port, username, password)
-sftp = ssh.open_sftp()
-
-# Читаем HTML
+# Read current files
 with sftp.open("/var/www/englishpro/index.html", "r") as f:
     html = f.read().decode("utf-8")
 
-# 1. Правильный video тег
-old_video = '''<video id="aboutVideo" preload="auto" playsinline loop autoplay muted controls
-    style="width:100%;height:100%;object-fit:cover;border-radius:20px;cursor:pointer;">'''
+with sftp.open("/var/www/englishpro/styles.css", "r") as f:
+    css = f.read().decode("utf-8")
 
-new_video = '''<video id="aboutVideo" preload="auto" playsinline loop autoplay muted controls
-    style="width:100%;height:100%;object-fit:cover;border-radius:20px;cursor:pointer;"
-    defaultMuted="false">'''
+# ===== 1. UPDATE HTML: add autoplay, controls, remove overlay =====
+# Find the video wrapper section
+old_video_html = '''                    <div class="about-video-wrapper">
+                        <video id="aboutVideo" class="about-video" muted playsinline preload="metadata" poster="/images/teacher.jpg">
+                            <source src="/videos/povelitel_vselennoy.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-play-overlay" id="videoPlayOverlay">
+                            <span class="play-icon">▶</span>
+                            <span class="play-text">Нажмите, чтобы посмотреть</span>
+                        </div>
+                    </div>'''
 
-if old_video in html:
-    html = html.replace(old_video, new_video)
-    print("✅ Video тег обновлён")
+new_video_html = '''                    <div class="about-video-wrapper">
+                        <video id="aboutVideo" class="about-video" autoplay muted playsinline preload="auto" controls poster="/images/teacher.jpg">
+                            <source src="/videos/povelitel_vselennoy.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-hint">Нажмите на видео, чтобы включить звук</div>
+                    </div>'''
+
+if old_video_html in html:
+    html = html.replace(old_video_html, new_video_html)
+    print("✅ HTML video section updated")
 else:
-    print("❌ Старый video тег не найден!")
-    m = re.search(r'<video[^>]*>', html)
-    if m:
-        print(f"Текущий тег: {m.group()}")
+    print("⚠️ Could not find exact old video HTML, trying regex...")
+    # Fallback: replace using regex
+    pattern = r'<div class="about-video-wrapper">.*?</div>\s*</div>'
+    replacement = new_video_html + '\n                    </div>'
+    html = re.sub(pattern, replacement, html, flags=re.DOTALL)
+    print("✅ HTML video section updated via regex")
 
-# 2. Заменяем весь скрипт на простой и надёжный
-old_script_pattern = r'<script>\n// Автовоспроизведение видео.*?</script>'
-new_script = '''<script>
+# ===== 2. UPDATE CSS: make video vertical with proper styling =====
+# Remove old video CSS section and add new one
+old_css_start = '/* ===== VIDEO IN ABOUT SECTION =====' 
+old_css_end = '/* ===== ABOUT SECTION ====='
+
+# Find and replace the video CSS section
+video_css_pattern = r'/\* ===== VIDEO IN ABOUT SECTION =====.*?(?=/\* =====|$)'
+new_video_css = '''/* ===== VIDEO IN ABOUT SECTION ===== */
+.about-images {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.about-video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    background: #000;
+}
+
+.about-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 9/16;
+    object-fit: cover;
+    background: #1a1a2e;
+    cursor: pointer;
+}
+
+.video-hint {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+}
+
+.about-video-wrapper:hover .video-hint {
+    opacity: 1;
+}
+
+/* Video controls styling */
+.about-video::-webkit-media-controls {
+    background: rgba(0,0,0,0.3);
+}
+
+.about-video::-webkit-media-controls-panel {
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+}
+
+@media (max-width: 768px) {
+    .about-images {
+        max-width: 100%;
+        min-width: unset;
+    }
+    .about-video-wrapper {
+        max-width: 300px;
+    }
+}
+'''
+
+css = re.sub(video_css_pattern, new_video_css, css, flags=re.DOTALL)
+print("✅ CSS video section updated")
+
+# ===== 3. REPLACE video_fix.js with new IntersectionObserver version =====
+new_video_js = '''// ===== VIDEO: autoplay on scroll with IntersectionObserver =====
 (function() {
     var video = document.getElementById('aboutVideo');
     if (!video) return;
-    
-    // Принудительно ставим громкость 0.33 при каждой возможности
-    function setVolume() {
-        video.volume = 0.33;
-    }
-    
-    // Ставим сразу
-    setVolume();
-    
-    // При загрузке метаданных
-    video.addEventListener('loadedmetadata', setVolume);
-    video.addEventListener('loadeddata', setVolume);
-    video.addEventListener('canplay', function() {
-        setVolume();
-        // Пробуем включить звук
-        video.muted = false;
-        video.play()['catch'](function(){});
-    });
-    
-    // При изменении громкости пользователем - возвращаем 0.33
-    video.addEventListener('volumechange', function() {
-        if (video.volume > 0.34 || video.volume < 0.32) {
-            video.volume = 0.33;
+
+    video.volume = 0.5;
+    var hasInteracted = false;
+    var wasPlaying = false;
+
+    // Listen for first user interaction to enable sound
+    document.addEventListener('click', function() {
+        hasInteracted = true;
+        if (video.paused && wasPlaying) {
+            video.muted = false;
+            video.play().catch(function() {});
+        }
+    }, { once: true });
+
+    document.addEventListener('touchstart', function() {
+        hasInteracted = true;
+        if (video.paused && wasPlaying) {
+            video.muted = false;
+            video.play().catch(function() {});
+        }
+    }, { once: true });
+
+    // Click on video to toggle sound
+    video.addEventListener('click', function() {
+        if (video.muted) {
+            video.muted = false;
+            video.play().catch(function() {});
+        } else {
+            video.muted = true;
         }
     });
-    
-    // При первом клике/скролле включаем звук
-    function enableSound() {
-        video.muted = false;
-        video.volume = 0.33;
-        video.play()['catch'](function(){});
-    }
-    
-    document.addEventListener('click', enableSound, {once: true});
-    document.addEventListener('scroll', enableSound, {once: true});
-    document.addEventListener('touchstart', enableSound, {once: true});
-    
-    // IntersectionObserver
-    if ('IntersectionObserver' in window) {
-        var observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    video.play()['catch'](function(){});
-                    video.muted = false;
-                    video.volume = 0.33;
-                }
-            });
-        }, {threshold: 0.2});
-        observer.observe(video);
-    }
-    
-    console.log('Video: autoplay + volume 0.33');
+
+    // IntersectionObserver: autoplay when visible
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                // Video is visible - play it
+                video.play().catch(function() {});
+                wasPlaying = true;
+            } else {
+                // Video is not visible - pause it
+                video.pause();
+                wasPlaying = false;
+            }
+        });
+    }, { threshold: 0.3 });
+
+    observer.observe(video);
+
+    // Also try to play immediately if already visible
+    setTimeout(function() {
+        video.play().catch(function() {});
+    }, 1000);
 })();
-</script>'''
+'''
 
-html = re.sub(old_script_pattern, new_script, html, flags=re.DOTALL)
-print("✅ Скрипт обновлён")
+try:
+    with sftp.open("/var/www/englishpro/video_fix.js", "w") as f:
+        f.write(new_video_js.encode("utf-8"))
+    print("✅ video_fix.js updated")
+except Exception as e:
+    print(f"⚠️ Could not write video_fix.js: {e}")
 
-# Обновляем версию
-html = re.sub(r'script\.js\?v=[\d.]+', 'script.js?v=30.0', html)
-html = re.sub(r'styles\.css\?v=[\d.]+', 'styles.css?v=30.0', html)
-
-# Сохраняем
+# Write updated files
 with sftp.open("/var/www/englishpro/index.html", "w") as f:
     f.write(html.encode("utf-8"))
-print("✅ HTML сохранён")
+print("✅ index.html saved")
+
+with sftp.open("/var/www/englishpro/styles.css", "w") as f:
+    f.write(css.encode("utf-8"))
+print("✅ styles.css saved")
 
 sftp.close()
-ssh.close()
-
-# Перезапускаем nginx
-ssh2 = paramiko.SSHClient()
-ssh2.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh2.connect(host, port, username, password)
-ssh2.exec_command("systemctl restart nginx")
-ssh2.close()
-
-print("🎉 Готово! Видео: autoplay + controls + volume 0.33 (1/3)")
+client.close()
+print("\n✅ All files updated! Reloading nginx...")
