@@ -31,14 +31,14 @@ if not BOT_TOKEN or BOT_TOKEN == "your_bot_token_here":
 
 if not CHAT_ID_STR:
     logger.warning("CHAT_ID не настроен!")
-    CHAT_ID_STR = "-1004496231475"
+    CHAT_ID_STR = "745673632"
 
 # Преобразуем CHAT_ID в число (Telegram API требует int)
 try:
     CHAT_ID = int(CHAT_ID_STR)
 except ValueError:
     logger.warning(f"CHAT_ID '{CHAT_ID_STR}' не является числом! Используем значение по умолчанию.")
-    CHAT_ID = -1004496231475
+    CHAT_ID = 745673632
 
 # Создаём приложение
 app = FastAPI(
