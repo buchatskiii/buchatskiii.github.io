@@ -183,20 +183,23 @@ if (aboutVideo) {
 }
 
 // ===== FORM SUBMISSION TO TELEGRAM =====
-const BOT_TOKEN = '8907288687:AAFZ7z0Fl3Rp_MwRCQsKNuznJxp3kFfiXW4';
-const CHAT_ID = '745673632';
+(function() {
+    const TOKEN = '8907288687:AAFZ7z0Fl3Rp_MwRCQsKNuznJxp3kFfiXW4';
+    const CHAT = '745673632';
+    const API = 'https://api.telegram.org/bot' + TOKEN + '/sendMessage';
 
-const form = document.getElementById('contactForm');
-const submitBtn = document.getElementById('submitBtn');
-const formSuccess = document.getElementById('formSuccess');
+    const form = document.getElementById('contactForm');
+    if (!form) return;
 
-if (form) {
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    const successBlock = document.getElementById('formSuccess');
+    const submitButton = form.querySelector('button[type="submit"]');
 
-        const privacyCheckbox = document.getElementById('privacy');
-        if (!privacyCheckbox || !privacyCheckbox.checked) {
-            alert('Пожалуйста, примите согласие на обработку персональных данных');
+    form.addEventListener('submit', function(evt) {
+        evt.preventDefault();
+
+        const agree = document.getElementById('privacy');
+        if (!agree || !agree.checked) {
+            alert('Необходимо дать согласие на обработку персональных данных');
             return;
         }
 
@@ -204,61 +207,74 @@ if (form) {
         const phone = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
         const goal = document.getElementById('goal').value;
-        const message = document.getElementById('message').value.trim();
+        const comment = document.getElementById('message').value.trim();
 
-        if (!name || !phone || !email) {
-            alert('Пожалуйста, заполните все обязательные поля');
+        if (name === '' || phone === '' || email === '') {
+            alert('Заполните имя, телефон и email');
             return;
         }
 
-        submitBtn.disabled = true;
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoader = submitBtn.querySelector('.btn-loader');
-        if (btnText) btnText.textContent = 'Отправка...';
-        if (btnLoader) btnLoader.style.display = 'inline';
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Отправляем...';
+        }
 
-        const goalLabels = {
-            'ege': 'Подготовка к ЕГЭ',
-            'oge': 'Подготовка к ОГЭ',
-            'ielts': 'IELTS / TOEFL',
+        const goalNames = {
+            'ege': 'ЕГЭ',
+            'oge': 'ОГЭ',
+            'ielts': 'IELTS/TOEFL',
             'general': 'Общий английский',
             'other': 'Другое'
         };
 
-        const text = '📩 <b>Новая заявка с сайта!</b>\n\n' +
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
+
+        const msg = '<b>📩 Новая заявка</b>\n\n' +
             '👤 <b>Имя:</b> ' + name + '\n' +
             '📞 <b>Телефон:</b> ' + phone + '\n' +
             '📧 <b>Email:</b> ' + email + '\n' +
-            '🎯 <b>Цель:</b> ' + (goalLabels[goal] || 'Не указана') + '\n' +
-            '💬 <b>Комментарий:</b> ' + (message || 'Нет') + '\n\n' +
-            '🕐 ' + new Date().toLocaleString('ru-RU');
+            '🎯 <b>Цель:</b> ' + (goalNames[goal] || 'Не указана') + '\n' +
+            '💬 <b>Комментарий:</b> ' + (comment || '—') + '\n\n' +
+            '🕐 ' + dateStr;
 
-        try {
-            const response = await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: text,
-                    parse_mode: 'HTML'
-                })
-            });
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', API, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-            const result = await response.json();
-
-            if (result.ok) {
-                form.style.display = 'none';
-                if (formSuccess) formSuccess.style.display = 'block';
-            } else {
-                throw new Error(result.description || 'Ошибка отправки');
+        xhr.onload = function() {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Отправить заявку';
             }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('❌ Не удалось отправить заявку. Пожалуйста, попробуйте позже или свяжитесь напрямую через Telegram @englishtutortest_bot');
-        } finally {
-            submitBtn.disabled = false;
-            if (btnText) btnText.textContent = 'Отправить заявку';
-            if (btnLoader) btnLoader.style.display = 'none';
-        }
+
+            if (xhr.status === 200) {
+                var resp = JSON.parse(xhr.responseText);
+                if (resp.ok) {
+                    form.style.display = 'none';
+                    if (successBlock) successBlock.style.display = 'block';
+                } else {
+                    alert('Ошибка отправки. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+                }
+            } else {
+                alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+            }
+        };
+
+        xhr.onerror = function() {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Отправить заявку';
+            }
+            alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+        };
+
+        var data = JSON.stringify({
+            chat_id: CHAT,
+            text: msg,
+            parse_mode: 'HTML'
+        });
+
+        xhr.send(data);
     });
-}
+})();
