@@ -7,7 +7,6 @@ burger.addEventListener('click', () => {
     navLinks.classList.toggle('active');
 });
 
-// Close menu on link click
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
         burger.classList.remove('active');
@@ -22,11 +21,7 @@ faqItems.forEach(item => {
     const question = item.querySelector('.faq-question');
     question.addEventListener('click', () => {
         const isActive = item.classList.contains('active');
-        
-        // Close all
         faqItems.forEach(i => i.classList.remove('active'));
-        
-        // Toggle current
         if (!isActive) {
             item.classList.add('active');
         }
@@ -35,14 +30,12 @@ faqItems.forEach(item => {
 
 // ===== COUNTER ANIMATION =====
 function animateCounters() {
-    const counters = document.querySelectorAll('.stat-number [data-target]');
-    
+    const counters = document.querySelectorAll('.stat-number');
     counters.forEach(counter => {
         const target = parseInt(counter.getAttribute('data-target'));
         const duration = 2000;
         const step = Math.ceil(target / (duration / 16));
         let current = 0;
-        
         const updateCounter = () => {
             current += step;
             if (current >= target) {
@@ -52,18 +45,12 @@ function animateCounters() {
             counter.textContent = current;
             requestAnimationFrame(updateCounter);
         };
-        
         updateCounter();
     });
 }
 
-// Trigger counter animation when hero is in view
 const heroSection = document.querySelector('.hero');
 let countersAnimated = false;
-
-const observerOptions = {
-    threshold: 0.3
-};
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -72,11 +59,11 @@ const observer = new IntersectionObserver((entries) => {
             animateCounters();
         }
     });
-}, observerOptions);
+}, { threshold: 0.3 });
 
 observer.observe(heroSection);
 
-// ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
+// ===== SMOOTH SCROLL =====
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
         e.preventDefault();
@@ -85,7 +72,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             const headerOffset = 80;
             const elementPosition = target.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            
             window.scrollTo({
                 top: offsetPosition,
                 behavior: 'smooth'
@@ -94,13 +80,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== STICKY NAVBAR ON SCROLL =====
-let lastScroll = 0;
+// ===== STICKY NAVBAR =====
 const navbar = document.querySelector('.navbar');
-
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-    
     if (currentScroll > 100) {
         navbar.style.background = 'rgba(45, 52, 54, 0.95)';
         navbar.style.backdropFilter = 'blur(10px)';
@@ -111,13 +94,10 @@ window.addEventListener('scroll', () => {
         navbar.style.backdropFilter = 'none';
         navbar.style.padding = '20px 0';
     }
-    
-    lastScroll = currentScroll;
 });
 
-// ===== SCROLL REVEAL ANIMATIONS =====
+// ===== SCROLL REVEAL =====
 const revealElements = document.querySelectorAll('.section');
-
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -125,9 +105,7 @@ const revealObserver = new IntersectionObserver((entries) => {
             entry.target.style.transform = 'translateY(0)';
         }
     });
-}, {
-    threshold: 0.1
-});
+}, { threshold: 0.1 });
 
 revealElements.forEach(el => {
     el.style.opacity = '0';
@@ -136,18 +114,15 @@ revealElements.forEach(el => {
     revealObserver.observe(el);
 });
 
-// ===== PHONE INPUT MASK =====
+// ===== PHONE MASK =====
 const phoneInput = document.getElementById('phone');
-
 if (phoneInput) {
     phoneInput.addEventListener('input', function(e) {
         let value = this.value.replace(/\D/g, '');
-        
         if (value.length === 0) {
             this.value = '';
             return;
         }
-        
         if (value.length <= 1) {
             this.value = '+7';
         } else if (value.length <= 4) {
@@ -164,7 +139,7 @@ if (phoneInput) {
     });
 }
 
-// ===== VIDEO AUTOPLAY ON SCROLL =====
+// ===== VIDEO AUTOPLAY =====
 const aboutVideo = document.getElementById('aboutVideo');
 const videoOverlay = document.getElementById('videoPlayOverlay');
 let videoPlayed = false;
@@ -174,10 +149,10 @@ if (aboutVideo) {
         entries.forEach(entry => {
             if (entry.isIntersecting && !videoPlayed) {
                 aboutVideo.play().then(() => {
-                    videoOverlay.classList.add('hidden');
+                    if (videoOverlay) videoOverlay.classList.add('hidden');
                     videoPlayed = true;
                 }).catch(() => {});
-            } else if (!entry.isIntersecting && aboutVideo.paused === false) {
+            } else if (!entry.isIntersecting && !aboutVideo.paused) {
                 aboutVideo.pause();
             }
         });
@@ -185,11 +160,13 @@ if (aboutVideo) {
 
     videoObserver.observe(aboutVideo);
 
-    videoOverlay.addEventListener('click', () => {
-        aboutVideo.play();
-        videoOverlay.classList.add('hidden');
-        videoPlayed = true;
-    });
+    if (videoOverlay) {
+        videoOverlay.addEventListener('click', () => {
+            aboutVideo.play();
+            videoOverlay.classList.add('hidden');
+            videoPlayed = true;
+        });
+    }
 
     aboutVideo.addEventListener('click', () => {
         if (aboutVideo.paused) {
@@ -200,51 +177,46 @@ if (aboutVideo) {
     });
 
     aboutVideo.addEventListener('ended', () => {
-        videoOverlay.classList.remove('hidden');
+        if (videoOverlay) videoOverlay.classList.remove('hidden');
         videoPlayed = false;
     });
 }
 
 // ===== FORM SUBMISSION TO TELEGRAM =====
-const TELEGRAM_BOT_TOKEN = '8907288687:AAHRBarHQyV1cBXYLIpRR4ji_b2-Pw31jxg';
-const TELEGRAM_CHAT_ID = '745673632';
+const BOT_TOKEN = '8907288687:AAFZ7z0Fl3Rp_MwRCQsKNuznJxp3kFfiXW4';
+const CHAT_ID = '745673632';
 
-const contactForm = document.getElementById('contactForm');
+const form = document.getElementById('contactForm');
 const submitBtn = document.getElementById('submitBtn');
 const formSuccess = document.getElementById('formSuccess');
 
-if (contactForm) {
-    contactForm.addEventListener('submit', async function(e) {
+if (form) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Проверка согласия с политикой конфиденциальности
         const privacyCheckbox = document.getElementById('privacy');
         if (!privacyCheckbox || !privacyCheckbox.checked) {
             alert('Пожалуйста, примите согласие на обработку персональных данных');
             return;
         }
 
-        // Собираем данные формы
         const name = document.getElementById('name').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
         const goal = document.getElementById('goal').value;
         const message = document.getElementById('message').value.trim();
 
-        // Валидация
         if (!name || !phone || !email) {
             alert('Пожалуйста, заполните все обязательные поля');
             return;
         }
 
-        // Показываем загрузку
         submitBtn.disabled = true;
         const btnText = submitBtn.querySelector('.btn-text');
         const btnLoader = submitBtn.querySelector('.btn-loader');
         if (btnText) btnText.textContent = 'Отправка...';
         if (btnLoader) btnLoader.style.display = 'inline';
 
-        // Формируем сообщение
         const goalLabels = {
             'ege': 'Подготовка к ЕГЭ',
             'oge': 'Подготовка к ОГЭ',
@@ -262,13 +234,11 @@ if (contactForm) {
             '🕐 ' + new Date().toLocaleString('ru-RU');
 
         try {
-            const response = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+            const response = await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
+                    chat_id: CHAT_ID,
                     text: text,
                     parse_mode: 'HTML'
                 })
@@ -277,15 +247,14 @@ if (contactForm) {
             const result = await response.json();
 
             if (result.ok) {
-                // Успех - показываем сообщение об успехе
-                contactForm.style.display = 'none';
+                form.style.display = 'none';
                 if (formSuccess) formSuccess.style.display = 'block';
             } else {
                 throw new Error(result.description || 'Ошибка отправки');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('❌ Не удалось отправить заявку. Пожалуйста, попробуйте позже или свяжитесь со мной напрямую через Telegram @englishtutortest_bot');
+            alert('❌ Не удалось отправить заявку. Пожалуйста, попробуйте позже или свяжитесь напрямую через Telegram @englishtutortest_bot');
         } finally {
             submitBtn.disabled = false;
             if (btnText) btnText.textContent = 'Отправить заявку';
