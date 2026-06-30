@@ -285,7 +285,7 @@ if (contactForm) {
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('❌ Не удалось отправить заявку. Пожалуйста, попробуйте позже или свяжитесь со мной напрямую через Telegram @bek_english_tutor');
+            alert('❌ Не удалось отправить заявку. Пожалуйста, попробуйте позже или свяжитесь со мной напрямую через Telegram @englishtutortest_bot');
         } finally {
             submitBtn.disabled = false;
             if (btnText) btnText.textContent = 'Отправить заявку';
