@@ -32,8 +32,13 @@ faqItems.forEach(item => {
 function animateCounters() {
     const counters = document.querySelectorAll('.stat-number [data-target]');
     counters.forEach(counter => {
-        const target = parseInt(counter.getAttribute('data-target'));
-        if (isNaN(target) || target <= 0) return;
+        const targetAttr = counter.getAttribute('data-target');
+        if (!targetAttr) return;
+        const target = parseInt(targetAttr);
+        if (isNaN(target) || target <= 0) {
+            counter.textContent = targetAttr || '0';
+            return;
+        }
         const duration = 2000;
         const step = Math.ceil(target / (duration / 16));
         let current = 0;
@@ -143,44 +148,31 @@ if (phoneInput) {
 // ===== VIDEO AUTOPLAY =====
 const aboutVideo = document.getElementById('aboutVideo');
 const videoOverlay = document.getElementById('videoPlayOverlay');
-let videoPlayed = false;
+const videoWrapper = document.querySelector('.about-video-wrapper');
 
 if (aboutVideo) {
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !videoPlayed) {
-                aboutVideo.play().then(() => {
-                    if (videoOverlay) videoOverlay.classList.add('hidden');
-                    videoPlayed = true;
-                }).catch(() => {});
-            } else if (!entry.isIntersecting && !aboutVideo.paused) {
+    // Видео играет со звуком, без привязки к скроллу
+    aboutVideo.muted = false;
+    aboutVideo.volume = 0.33;
+    aboutVideo.play().catch(() => {});
+
+    if (videoOverlay) {
+        videoOverlay.classList.add('hidden');
+    }
+
+    // Клик по любой части видео-обертки для play/pause
+    if (videoWrapper) {
+        videoWrapper.addEventListener('click', (e) => {
+            if (e.target.tagName === 'VIDEO' && (e.target.hasAttribute('controls') || document.querySelector('.about-video[controls]'))) {
+                return;
+            }
+            if (aboutVideo.paused) {
+                aboutVideo.play();
+            } else {
                 aboutVideo.pause();
             }
         });
-    }, { threshold: 0.5 });
-
-    videoObserver.observe(aboutVideo);
-
-    if (videoOverlay) {
-        videoOverlay.addEventListener('click', () => {
-            aboutVideo.play();
-            videoOverlay.classList.add('hidden');
-            videoPlayed = true;
-        });
     }
-
-    aboutVideo.addEventListener('click', () => {
-        if (aboutVideo.paused) {
-            aboutVideo.play();
-        } else {
-            aboutVideo.pause();
-        }
-    });
-
-    aboutVideo.addEventListener('ended', () => {
-        if (videoOverlay) videoOverlay.classList.remove('hidden');
-        videoPlayed = false;
-    });
 }
 
 // ===== FORM SUBMISSION TO BACKEND API =====

@@ -340,7 +340,7 @@ body {
 }
 
 .stat-plus--bottom {
-    align-self: baseline;
+    align-self: center;
 }
 
 .stat-label {
@@ -400,7 +400,7 @@ body {
 
 .about-content {
     display: grid;
-    grid-template-columns: 0.8fr 1.5fr;
+    grid-template-columns: 360px 1.5fr;
     gap: 60px;
     align-items: start;
 }
@@ -1486,9 +1486,8 @@ body {
     aspect-ratio: 9 / 16;
     background: #000;
     flex: 0 0 auto;
-    max-width: 320px;
+    max-width: 360px;
     width: 100%;
-    justify-self: end;
 }
 
 .about-video {
@@ -1498,16 +1497,10 @@ body {
     display: block;
 }
 
-@media (max-width: 1024px) {
-    .about-video-wrapper {
-        justify-self: center;
-    }
-}
-
 @media (max-width: 768px) {
     .about-video-wrapper {
-        max-width: 280px;
-        justify-self: center;
+        max-width: 100%;
+        aspect-ratio: 9 / 16;
     }
 }
 
