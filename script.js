@@ -30,9 +30,10 @@ faqItems.forEach(item => {
 
 // ===== COUNTER ANIMATION =====
 function animateCounters() {
-    const counters = document.querySelectorAll('.stat-number');
+    const counters = document.querySelectorAll('.stat-number [data-target]');
     counters.forEach(counter => {
         const target = parseInt(counter.getAttribute('data-target'));
+        if (isNaN(target) || target <= 0) return;
         const duration = 2000;
         const step = Math.ceil(target / (duration / 16));
         let current = 0;
@@ -182,17 +183,17 @@ if (aboutVideo) {
     });
 }
 
-// ===== FORM SUBMISSION TO TELEGRAM =====
+// ===== FORM SUBMISSION TO BACKEND API =====
 (function() {
-    const TOKEN = '8907288687:AAFZ7z0Fl3Rp_MwRCQsKNuznJxp3kFfiXW4';
-    const CHAT = '745673632';
-    const API = 'https://api.telegram.org/bot' + TOKEN + '/sendMessage';
+    const API_URL = '/api/lead';
 
     const form = document.getElementById('contactForm');
     if (!form) return;
 
     const successBlock = document.getElementById('formSuccess');
     const submitButton = form.querySelector('button[type="submit"]');
+    const btnText = submitButton ? submitButton.querySelector('.btn-text') : null;
+    const btnLoader = submitButton ? submitButton.querySelector('.btn-loader') : null;
 
     form.addEventListener('submit', function(evt) {
         evt.preventDefault();
@@ -216,63 +217,54 @@ if (aboutVideo) {
 
         if (submitButton) {
             submitButton.disabled = true;
-            submitButton.textContent = 'Отправляем...';
+            if (btnText) btnText.style.display = 'none';
+            if (btnLoader) btnLoader.style.display = 'inline';
         }
 
-        const goalNames = {
-            'ege': 'ЕГЭ',
-            'oge': 'ОГЭ',
-            'ielts': 'IELTS/TOEFL',
-            'general': 'Общий английский',
-            'other': 'Другое'
-        };
-
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
-
-        const msg = '<b>📩 Новая заявка</b>\n\n' +
-            '👤 <b>Имя:</b> ' + name + '\n' +
-            '📞 <b>Телефон:</b> ' + phone + '\n' +
-            '📧 <b>Email:</b> ' + email + '\n' +
-            '🎯 <b>Цель:</b> ' + (goalNames[goal] || 'Не указана') + '\n' +
-            '💬 <b>Комментарий:</b> ' + (comment || '—') + '\n\n' +
-            '🕐 ' + dateStr;
-
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', API, true);
+        xhr.open('POST', API_URL, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
         xhr.onload = function() {
             if (submitButton) {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Отправить заявку';
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
             }
 
             if (xhr.status === 200) {
-                var resp = JSON.parse(xhr.responseText);
-                if (resp.ok) {
-                    form.style.display = 'none';
-                    if (successBlock) successBlock.style.display = 'block';
-                } else {
-                    alert('Ошибка отправки. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+                try {
+                    var resp = JSON.parse(xhr.responseText);
+                    if (resp.status === 'success') {
+                        form.style.display = 'none';
+                        if (successBlock) successBlock.style.display = 'block';
+                    } else {
+                        alert('Ошибка отправки. Попробуйте позже или напишите в Telegram @bek_english_tutor');
+                    }
+                } catch(e) {
+                    alert('Ошибка отправки. Попробуйте позже или напишите в Telegram @bek_english_tutor');
                 }
             } else {
-                alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+                alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @bek_english_tutor');
             }
         };
 
         xhr.onerror = function() {
             if (submitButton) {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Отправить заявку';
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
             }
-            alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @englishtutortest_bot');
+            alert('Ошибка соединения. Попробуйте позже или напишите в Telegram @bek_english_tutor');
         };
 
         var data = JSON.stringify({
-            chat_id: CHAT,
-            text: msg,
-            parse_mode: 'HTML'
+            name: name,
+            phone: phone,
+            email: email,
+            goal: goal,
+            message: comment,
+            privacy: true
         });
 
         xhr.send(data);
