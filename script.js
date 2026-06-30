@@ -94,11 +94,12 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== FORM HANDLING =====
+// ===== FORM HANDLING - Прямая отправка в Telegram =====
 const contactForm = document.getElementById('contactForm');
 
-// URL бэкенда на VDS сервере
-const API_URL = '';
+// Telegram Bot Configuration
+const TELEGRAM_BOT_TOKEN = '8907288687:AAHRBarHQyV1cBXYLIpRR4ji_b2-Pw31jxg';
+const TELEGRAM_CHAT_ID = '745673632';
 
 contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -151,35 +152,49 @@ contactForm.addEventListener('submit', async function(e) {
         return;
     }
     
-    // Отправка на бэкенд
+    // Отправка напрямую в Telegram через Bot API
     const submitBtn = this.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = '⏳ Отправка...';
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch(`${API_URL}/api/lead`, {
+        const goalText = {
+            'ege': 'ЕГЭ',
+            'oge': 'ОГЭ',
+            'ielts': 'IELTS/TOEFL',
+            'general': 'Общий английский',
+            'other': 'Другое'
+        }[data.goal] || data.goal || 'Не указана';
+        
+        const message = '📩 <b>Новая заявка с сайта!</b>\n\n' +
+            '👤 <b>Имя:</b> ' + name + '\n' +
+            '📞 <b>Телефон:</b> ' + phone + '\n' +
+            '📧 <b>Email:</b> ' + email + '\n' +
+            '🎯 <b>Цель:</b> ' + goalText + '\n' +
+            (data.message ? '💬 <b>Комментарий:</b> ' + data.message + '\n' : '') +
+            '✅ <b>Согласие с политикой:</b> Да\n' +
+            '🕐 <b>Время:</b> ' + new Date().toLocaleString('ru-RU');
+        
+        const response = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                name: name,
-                phone: phone,
-                email: email,
-                goal: data.goal || '',
-                message: data.message || '',
-                privacy: true,
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML',
             }),
         });
         
         const result = await response.json();
         
-        if (response.ok) {
+        if (response.ok && result.ok) {
             showFormMessage('✅ Спасибо! Ваша заявка принята. Я свяжусь с вами в течение 2 часов.', 'success');
             contactForm.reset();
         } else {
-            showFormMessage(`❌ Ошибка: ${result.detail || 'Попробуйте позже'}`, 'error');
+            showFormMessage('❌ Ошибка отправки. Пожалуйста, попробуйте позже или напишите мне в Telegram @anna_english_tutor', 'error');
         }
     } catch (error) {
         console.error('Ошибка отправки:', error);
@@ -198,14 +213,14 @@ function showFormMessage(message, type) {
     }
     
     const msgDiv = document.createElement('div');
-    msgDiv.className = `form-message form-message--${type}`;
+    msgDiv.className = 'form-message form-message--' + type;
     msgDiv.textContent = message;
     
     const form = document.getElementById('contactForm');
     form.insertBefore(msgDiv, form.firstChild);
     
     // Auto remove after 5 seconds
-    setTimeout(() => {
+    setTimeout(function() {
         msgDiv.remove();
     }, 5000);
 }
